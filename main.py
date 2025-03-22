@@ -1,7 +1,12 @@
 import speech_recognition as sr
 import datetime
-import play_music
+import music
+import nlp
 CODENAME = ["dizzy", "wingman", "daisy"]
+functionalities = {
+    "play music": music.search_and_play,
+    "stop music": music.stop_playback
+}
 
 def recognize_speech_from_mic(recognizer, microphone):
     """Transcribe speech from recorded from `microphone`."""
@@ -62,7 +67,8 @@ if __name__ == "__main__":
 
             #If timeout < 3, print the transcription
             if timeout < 3:
-                print(f"You said: {guess_transcription}. Current timeout: {timeout}")
+                print(f"You said: {guess_transcription}")
+                timeout = 0
         else:
             timeout+=1
             print(f"timeout {timeout} @ {datetime.datetime.now().strftime("%H:%M:%S")}")
