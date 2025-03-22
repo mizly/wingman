@@ -1,6 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import nlp
+import cohere_nlp
 import json
 with open("config.json") as f:
     config = json.load(f)
@@ -33,7 +33,7 @@ def search_and_play(prompt):
     if not device_id:
         return "No available devices found. Please open Spotify on a device."
     
-    song_name = nlp.get_response(f"Given the following user input, return exactly Artist Title - Song Title, nothing more. {prompt}")
+    song_name = cohere_nlp.get_response(f"Given the following user input, return exactly Artist Title - Song Title, nothing more. {prompt}")
     print("Searching for:", song_name)
     results = sp.search(q=song_name, limit=5, type='track')
     tracks = results.get('tracks', {}).get('items', [])
@@ -72,7 +72,6 @@ def previous_track():
     device_id = get_device_id()
     if device_id:
         sp.previous_track(device_id=device_id)
-        sp.start_playback(device_id=device_id)
         return "Okay, I went back to the previous track!"
     return "No available devices found."
 
@@ -87,7 +86,7 @@ def add_to_queue(prompt):
     if not device_id:
         return "No available devices found. Please open Spotify on a device."
     
-    song_name = nlp.get_response(f"Given the following user input, return exactly Artist Title - Song Title, nothing more. {prompt}")
+    song_name = cohere_nlp.get_response(f"Given the following user input, return exactly Artist Title - Song Title, nothing more. {prompt}")
     print("Searching for:", song_name)
     results = sp.search(q=song_name, limit=5, type='track')
     tracks = results.get('tracks', {}).get('items', [])
@@ -101,4 +100,4 @@ def add_to_queue(prompt):
 
 # Example usage
 if __name__ == "__main__":
-    search_and_play("In The End - Linkin Park")
+    previous_track()
