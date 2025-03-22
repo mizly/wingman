@@ -1,9 +1,9 @@
 import cohere
-import os
-from dotenv import load_dotenv
-load_dotenv()
+import json
+with open("config.json") as f:
+    config = json.load(f)
 
-cohere_api_key = os.getenv("COHERE_API_KEY")
+cohere_api_key = config.get("COHERE_API_KEY")
 
 co = cohere.ClientV2(cohere_api_key)
 response = co.chat(

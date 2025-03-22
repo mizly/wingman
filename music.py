@@ -1,20 +1,19 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import os
-from dotenv import load_dotenv
 import nlp
+import json
+with open("config.json") as f:
+    config = json.load(f)
 
-# Load environment variables
-load_dotenv()
-client_id = os.getenv("SPOTIPY_CLIENT_ID")
-client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+spotipy_client_id = config.get("SPOTIPY_CLIENT_ID")
+spotipy_client_secret = config.get("SPOTIPY_CLIENT_SECRET")
 redirect_uri = "http://google.com/callback/"
 scope = "user-read-playback-state,user-modify-playback-state"
 
 sp = spotipy.Spotify(
     auth_manager=spotipy.SpotifyOAuth(
-        client_id=client_id,
-        client_secret=client_secret,
+        client_id=spotipy_client_id,
+        client_secret=spotipy_client_secret,
         redirect_uri=redirect_uri,
         scope=scope, open_browser=False
     )
