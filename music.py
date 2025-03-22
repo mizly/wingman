@@ -72,6 +72,7 @@ def previous_track():
     device_id = get_device_id()
     if device_id:
         sp.previous_track(device_id=device_id)
+        sp.start_playback(device_id=device_id)
         return "Okay, I went back to the previous track!"
     return "No available devices found."
 

@@ -2,6 +2,7 @@ import speech_recognition as sr
 import datetime
 import music
 import cohere_nlp
+import gemini
 import basic_functionalities
 from tiktok_voice import tts, Voice
 from collections import deque
@@ -19,9 +20,17 @@ MODE = {
     "anime_girlfriend": {
         "personality": "cute and bubbly, slightly possessive. Respond in Japanese only!",
         "voice": Voice.JP_FEMALE_OOMAEAIIKA
+    },
+    "mexican_friendly_guy": {
+        "personality": "works in construction, friendly but can have light banter. Respond in Spanish only",
+        "voice": Voice.ES_MX_MALE
+    },
+    "french_flirty_guy": {
+        "personality": "works as a chef, flirty and charming. Respond in French only!",
+        "voice": Voice.FR_MALE_2
     }
 }
-current_personality = "sassy"
+current_personality = "mexican_friendly_guy"
 MESSAGE_MEMORY_SIZE = 5
 message_queue = deque(maxlen=MESSAGE_MEMORY_SIZE)  # Automatically maintains size
 SYSTEM_PROMPT = f"You are a personal assistant that goes by the name Wingman. You are {MODE[current_personality]["personality"]}, and have the voice of {str(MODE[current_personality]["voice"])}. You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: {message_queue}"
@@ -118,8 +127,8 @@ if __name__ == "__main__":
             #If timeout below threshold, MAIN FUNCTIONALITY IS CALLED
             if timeout < 3:
                 print(f"You said: {guess_transcription}")
-                type = cohere_nlp.get_response(f"Given the transcription: {guess_transcription}, pick and return a single type of command that is implied here. Here is the list of personalities: {MODE}. Otherwise, prioritize conversation, unless it is abundantly clear that it is one of the other commands. If you think it is play music, but the song name is unclear, choose resume music instead. Return your answer as simply a string, containing the most correct answer, with nothing else. {list(functionalities.keys())}")
-                print(f"Type: {type}")
+                type = gemini.get_response(f"Given the transcription: {guess_transcription}, pick and return a single type of command that is implied here. Here is the list of personalities: {MODE}. Otherwise, prioritize conversation, unless it is abundantly clear that it is one of the other commands. If you think it is play music, but the song name is unclear, choose resume music instead. Return your answer as simply a string, containing the most correct answer, with nothing else. {list(functionalities.keys())}").strip()
+                print(f"Type: '{type}'")
                 if type in functionalities:
                     try:
                         if type == "conversation":
