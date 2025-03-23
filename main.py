@@ -4,8 +4,6 @@ import music
 import cohere_nlp
 import gemini
 import basic_functionalities
-import facerec
-import cvcont
 from tiktok_voice import tts, Voice
 from collections import deque
 
@@ -66,7 +64,8 @@ functionalities = {
     "add to queue": music.add_to_queue,
     "conversation": basic_functionalities.personal_assistant,
     "weather": basic_functionalities.get_weather,
-    "switch personality": switch_personality
+    "switch personality": switch_personality,
+    "recognize": basic_functionalities.face_recognize
 }
 print(f"Functionalities: {list(functionalities.keys())}")
 
@@ -110,10 +109,8 @@ if __name__ == "__main__":
     microphone = sr.Microphone()
 
     timeout = 0
-
+    face_detection = False
     while True:
-        # get the speech from the user
-        cvcont.start_camera()
         guess = recognize_speech_from_mic(recognizer, microphone)
         mentioned = False
         if not guess["error"]:
@@ -130,7 +127,7 @@ if __name__ == "__main__":
             #If timeout below threshold, MAIN FUNCTIONALITY IS CALLED
             if timeout < 3:
                 print(f"You said: {guess_transcription}")
-                type = gemini.get_response(f"Given the transcription: {guess_transcription}, pick and return a single type of command that is implied here. Here is the list of personalities: {MODE}. Otherwise, prioritize conversation, unless it is abundantly clear that it is one of the other commands. If you think it is play music, but the song name is unclear, choose resume music instead. Return your answer as simply a string, containing the most correct answer, with nothing else. {list(functionalities.keys())}").strip()
+                type = gemini.get_response(f"Given the transcription: {guess_transcription}, pick and return a single type of command that is implied here. Here is the list of personalities: {MODE}. Prioritize recognize and conversation, unless it is abundantly clear that it is one of the other commands. If you think it is play music, but the song name is unclear, choose resume music instead. Return your answer as simply a string, containing the most correct answer, with nothing else. {list(functionalities.keys())}").strip()
                 print(f"Type: '{type}'")
                 if type in functionalities:
                     try:
@@ -147,6 +144,8 @@ if __name__ == "__main__":
                                 bot_response = functionalities[type](SYSTEM_PROMPT, location)
                         elif type in ["stop music", "pause music", "resume music", "skip track", "previous track", "get current track"]:
                             bot_response = functionalities[type]()
+                        elif type == "recognize":
+                            bot_response = functionalities[type](MODE[current_personality]["voice"])
                         else:
                             bot_response = functionalities[type](guess_transcription)
                         print(SYSTEM_PROMPT)

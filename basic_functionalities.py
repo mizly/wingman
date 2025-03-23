@@ -1,7 +1,14 @@
-import cohere_nlp
+import cv2
 import gemini
 import requests
 import json
+import time
+import mediapipe as mp
+import facerec
+from tiktok_voice import tts, Voice
+import speech_recognition as sr
+import datetime
+import cohere_nlp
 # API Key
 with open("config.json") as f:
     config = json.load(f)
@@ -32,3 +39,110 @@ def get_weather(SYSTEM_PROMPT, LOCATION="Toronto"):
 
 def personal_assistant(text, system_prompt):
     return gemini.get_response(f"{system_prompt}. Here is the user prompt: {text}")
+
+def recognize_speech_from_mic(recognizer, microphone):
+    """Transcribe speech from recorded from `microphone`."""
+    # check that recognizer and microphone arguments are appropriate type
+    if not isinstance(recognizer, sr.Recognizer):
+        raise TypeError("`recognizer` must be `Recognizer` instance")
+
+    if not isinstance(microphone, sr.Microphone):
+        raise TypeError("`microphone` must be `Microphone` instance")
+
+    # adjust the recognizer sensitivity to ambient noise and record audio from the microphone
+    with microphone as source:
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+
+    # set up the response object
+    response = {
+        "success": True,
+        "error": None,
+        "transcription": None
+    }
+
+    # try recognizing the speech in the recording
+    try:
+        response["transcription"] = recognizer.recognize_google(audio)
+    except sr.RequestError:
+        # API was unreachable or unresponsive
+        response["success"] = False
+        response["error"] = "API unavailable"
+    except sr.UnknownValueError:
+        # speech was unintelligible
+        response["error"] = "Unable to recognize speech"
+
+    return response
+
+def face_recognize(voice):
+    cap = cv2.VideoCapture(0)
+    
+    mp_face_detection = mp.solutions.face_detection
+    #mp_drawing = mp.solutions.drawing_utils
+    face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
+
+    face_detected = False
+    detected_time = 0
+    max_time = 5
+    start_time = time.time()
+    
+
+    while cap.isOpened():
+        success, image = cap.read()
+        if not success:
+            break
+        
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = face_detection.process(image_rgb)
+
+        if results.detections:
+            if not face_detected:
+                face_detected = True
+                detected_time = time.time()
+            elif time.time() - detected_time > max_time:
+                break  # Exit loop once face detection is confirmed for max_time
+        else:
+            if face_detected:
+                face_detected = False
+                break  # Exit loop when no face is detected
+            elif time.time() - start_time > max_time:
+                break
+
+
+
+    #here face is guaranteed to be detected or not.
+    if not face_detected:
+        return "I don't see a face right now"
+
+    recog = facerec.faceRecog(image)
+    if(recog!=False):
+        return "Hello "+recog+"! Nice to see you again!"
+    
+    tts("I don't recognize you, so let's add your face! What's your name?", voice, "output.mp3", play_sound=True)
+    recognizer = sr.Recognizer()
+    microphone = sr.Microphone()
+    timeout = 0
+    name = "none"
+    while timeout<3:
+        guess = recognize_speech_from_mic(recognizer, microphone)
+        if not guess["error"]:
+            guess_transcription = guess["transcription"].lower()
+            print(f"You said: {guess_transcription}")
+            name = cohere_nlp.get_response(f"The user's prompt was {guess_transcription}. Return just the name if a person's name is detected, otherwise return None. Make sure your response is a single word in plaintext.")
+            print(name)
+            if name.lower() != "none":
+                break
+            else:
+                tts("Could you try again? What's your name?", voice, "output.mp3", play_sound=True)
+        else:
+            timeout+=1
+            print(f"timeout {timeout} @ {datetime.datetime.now().strftime("%H:%M:%S")}")
+    if name.lower() == "none":
+        return("Sorry, I couldn't get your name. Maybe let's try again later?")
+
+    print("adding",name)
+    facerec.addFace(name, image)
+    cap.release()
+    cv2.destroyAllWindows()
+
+    return "end."

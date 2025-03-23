@@ -1,4 +1,5 @@
 import mediapipe as mp
+#import face_recognition_models
 import face_recognition as fr
 import cv2
 import numpy as np
@@ -9,35 +10,31 @@ import cvcont
 face_database = {}
 
 
-def faceRecog():
-    mp_face_detection = mp.solutions.face_detection
-    mp_drawing = mp.solutions.drawing_utils
-    face_detection = mp_face_detection.FaceDetection(min_detection_confidence = 0.5)
-    
+def faceRecog(img_frame):
+    global face_database
 
-
-    frame = cvcont.get_frame()
+    frame = img_frame
 
     face_locations = fr.face_locations(frame)
     face_encodings = fr.face_encodings(frame, face_locations)
     try:
         with open("face_encodings.pkl", "rb") as f:
             face_database = pickle.load(f)
-    except FileNotFoundError:
-        face_database = {}
+    except (FileNotFoundError, EOFError):
+        return False
 
     for coding in face_encodings:
         for name, face in face_database.items():
             match = fr.compare_faces([face],coding)[0]
             if(match):
-                print("I know you!")
+                #print("I know you!")
                 return name
 
     return False
 
 
-def addFace(name):
-    frame = cvcont.get_frame()
+def addFace(name, img_frame):
+    frame = img_frame
 
     face_locations = fr.face_locations(frame)
     face_encodings = fr.face_encodings(frame, face_locations)
@@ -47,7 +44,7 @@ def addFace(name):
         try:
             with open("face_encodings.pkl", "rb") as f:
                 face_database = pickle.load(f)
-        except FileNotFoundError:
+        except (FileNotFoundError, EOFError):
             face_database = {}
 
         if name in face_database:
