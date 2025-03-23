@@ -150,7 +150,7 @@ if __name__ == "__main__":
                         if type in ["play music", "pause music", "resume music", "skip track", "previous track", "get current track"]:
                             face_to_update = "dj"
                         else:
-                            face_to_update = gemini.get_response(f"Given the bot response: {bot_response}, extract the name of the face emotion based on the answer's sentiment/emotions. You can be a bit liberal with the choice, try to favour emoticons like owo or x_x for the anime girlfriend, or extreme emotions like heart or sob. Return the name in plaintext, nothing more. Take only from the keys of the following dictionary. {update_face.faces.keys()}").strip()
+                            face_to_update = gemini.get_response(f"Given the bot response: {bot_response}, and the user prompt: {guess_transcription} extract the name of the face emotion based on the bot's sentiment/emotions and how it may feel. You can be a bit liberal with the choice, try to favour emoticons like owo or x_x for the anime girlfriend, or extreme emotions like heart or sob. Return the name in plaintext, nothing more. Take only from the keys of the following dictionary. {update_face.faces.keys()}").strip()
                         print(f"Face to update: {face_to_update}")
                         if face_to_update in update_face.faces:
                             try:
