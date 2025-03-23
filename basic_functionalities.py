@@ -83,7 +83,7 @@ def face_recognize(voice):
 
     face_detected = False
     detected_time = 0
-    max_time = 5
+    max_time = 2
     start_time = time.time()
     
 
@@ -140,9 +140,8 @@ def face_recognize(voice):
     if name.lower() == "none":
         return("Sorry, I couldn't get your name. Maybe let's try again later?")
 
-    print("adding",name)
     facerec.addFace(name, image)
     cap.release()
     cv2.destroyAllWindows()
+    return f"Welcome, {name}!"
 
-    return "end."
