@@ -4,6 +4,8 @@ import music
 import cohere_nlp
 import gemini
 import basic_functionalities
+import facerec
+import cvcont
 from tiktok_voice import tts, Voice
 from collections import deque
 
@@ -30,7 +32,7 @@ MODE = {
         "voice": Voice.FR_MALE_2
     }
 }
-current_personality = "mexican_friendly_guy"
+current_personality = "butler"
 MESSAGE_MEMORY_SIZE = 5
 message_queue = deque(maxlen=MESSAGE_MEMORY_SIZE)  # Automatically maintains size
 SYSTEM_PROMPT = f"You are a personal assistant that goes by the name Wingman. You are {MODE[current_personality]["personality"]}, and have the voice of {str(MODE[current_personality]["voice"])}. You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: {message_queue}"
@@ -111,6 +113,7 @@ if __name__ == "__main__":
 
     while True:
         # get the speech from the user
+        cvcont.start_camera()
         guess = recognize_speech_from_mic(recognizer, microphone)
         mentioned = False
         if not guess["error"]:
