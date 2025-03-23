@@ -34,12 +34,13 @@ MODE = {
 current_personality = "butler"
 MESSAGE_MEMORY_SIZE = 10
 message_queue = deque(maxlen=MESSAGE_MEMORY_SIZE)  # Automatically maintains size
-SYSTEM_PROMPT = f"You are a personal assistant that goes by the name Wingman. You are {MODE[current_personality]["personality"]}, and have the voice of {str(MODE[current_personality]["voice"])}. You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: {message_queue}"
+SYSTEM_PROMPT = "You are a personal assistant that goes by the name Wingman. You are " + MODE[current_personality]["personality"] + ", and have the voice of " + str(MODE[current_personality]["voice"]) + ". You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: " + "\n".join(message_queue)
+
 print(SYSTEM_PROMPT)
 
 def update_system_prompt():
     global SYSTEM_PROMPT
-    SYSTEM_PROMPT = f"You are a personal assistant that goes by the name Wingman. You are {MODE[current_personality]['personality']}, and have the voice of {str(MODE[current_personality]['voice'])}. You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: {message_queue}"
+    SYSTEM_PROMPT = "You are a personal assistant that goes by the name Wingman. You are " + MODE[current_personality]["personality"] + ", and have the voice of " + str(MODE[current_personality]["voice"]) + ". You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: " + "\n".join(message_queue)
 
 def switch_personality(prompt):
     global current_personality
@@ -170,5 +171,6 @@ if __name__ == "__main__":
                 timeout = 0
         else:
             timeout+=1
-            print(f"timeout {timeout} @ {datetime.datetime.now().strftime("%H:%M:%S")}")
+            print("timeout " + str(timeout) + " @ " + datetime.datetime.now().strftime("%H:%M:%S"))
+
         

@@ -136,7 +136,7 @@ def face_recognize(voice):
                 tts("Could you try again? What's your name?", voice, "output.mp3", play_sound=True)
         else:
             timeout+=1
-            print(f"timeout {timeout} @ {datetime.datetime.now().strftime("%H:%M:%S")}")
+            print("timeout " + str(timeout) + " @ " + datetime.datetime.now().strftime("%H:%M:%S"))
     if name.lower() == "none":
         return("Sorry, I couldn't get your name. Maybe let's try again later?")
 
