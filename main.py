@@ -31,7 +31,7 @@ MODE = {
     }
 }
 current_personality = "butler"
-MESSAGE_MEMORY_SIZE = 5
+MESSAGE_MEMORY_SIZE = 10
 message_queue = deque(maxlen=MESSAGE_MEMORY_SIZE)  # Automatically maintains size
 SYSTEM_PROMPT = f"You are a personal assistant that goes by the name Wingman. You are {MODE[current_personality]["personality"]}, and have the voice of {str(MODE[current_personality]["voice"])}. You are tasked with helping the user with their daily tasks. You can play music, stop music, and have conversations with the user. You can also provide jokes, facts, and other information. Output your response in plaintext (without any formatting like bold or underline), and limit your response to at most 2 short sentences at most while sounding as human as possible. Here are your past messages: {message_queue}"
 print(SYSTEM_PROMPT)
@@ -133,8 +133,6 @@ if __name__ == "__main__":
                     try:
                         if type == "conversation":
                             bot_response = functionalities[type](guess_transcription, SYSTEM_PROMPT)
-                            message_queue.append(bot_response)
-                            update_system_prompt()
                         elif type == "weather":
                             location = cohere_nlp.get_response(f"Given the transcription: {guess_transcription}, extract the location mentioned in the user's request. Return only the city in simply plaintext, nothing more, and return None if no locations are mentioned. {SYSTEM_PROMPT}")
                             print(f"Location: {location}")
@@ -148,6 +146,8 @@ if __name__ == "__main__":
                             bot_response = functionalities[type](MODE[current_personality]["voice"])
                         else:
                             bot_response = functionalities[type](guess_transcription)
+                        message_queue.append(bot_response)
+                        update_system_prompt()
                         print(SYSTEM_PROMPT)
                         tts(bot_response, MODE[current_personality]["voice"], "output.mp3", play_sound=True)
                     except Exception as e:
