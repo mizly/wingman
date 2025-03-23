@@ -12,3 +12,7 @@ def get_response(text):
     contents=text,
     )
     return response.text
+
+
+if __name__ == "__main__":
+    print(get_response("tell me a joke!"))
