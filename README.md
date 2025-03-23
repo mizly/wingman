@@ -8,4 +8,4 @@ The functionality of Wingman includes the ability to switch between various mode
  
 ## Sources:
 https://github.com/mark-rez/TikTok-Voice-TTS
-https://pypi.org/project/face-recognition/
+https://github.com/ageitgey/face_recognition
