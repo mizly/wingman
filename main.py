@@ -6,6 +6,7 @@ import gemini
 import basic_functionalities
 from tiktok_voice import tts, Voice
 from collections import deque
+import update_face
 
 CODENAME = ["wingman", "daisy", "dizzy"]
 MODE = {
@@ -146,6 +147,18 @@ if __name__ == "__main__":
                             bot_response = functionalities[type](MODE[current_personality]["voice"])
                         else:
                             bot_response = functionalities[type](guess_transcription)
+                        if type in ["play music", "pause music", "resume music", "skip track", "previous track", "get current track"]:
+                            face_to_update = "dj"
+                        else:
+                            face_to_update = gemini.get_response(f"Given the bot response: {bot_response}, extract the name of the face emotion based on the answer's sentiment/emotions. You can be a bit liberal with the choice, try to favour emoticons like owo or x_x for the anime girlfriend, or extreme emotions like heart or sob. Return the name in plaintext, nothing more. Take only from the keys of the following dictionary. {update_face.faces.keys()}").strip()
+                        print(f"Face to update: {face_to_update}")
+                        if face_to_update in update_face.faces:
+                            try:
+                                update_face.update_face(face_to_update)
+                            except Exception as e:
+                                print(f"Error: {e}")
+                        else:
+                            print("Invalid face emotion")
                         message_queue.append(bot_response)
                         update_system_prompt()
                         print(SYSTEM_PROMPT)
